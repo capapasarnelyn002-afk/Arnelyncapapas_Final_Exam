@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S-Portal | Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --sidebar-bg: #0f172a;
+            --main-bg: #f1f5f9;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+        }
+
+        body {
+            background-color: var(--main-bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Dashboard Layout */
+        .wrapper { display: flex; min-height: 100vh; }
+
+        /* Sidebar Design */
+        #sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: white;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100%;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.05);
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Main Content */
+        #content {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            padding: 2rem;
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: #eef2ff;
+            color: var(--accent);
+        }
+
+        /* Students Table */
+        .data-container {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            padding: 0;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table thead th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table tbody td {
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            color: #1e293b;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        /* Year Pills */
+        .pill {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .y1 { background: #dcfce7; color: #166534; }
+        .y2 { background: #dbeafe; color: #1e40af; }
+        .y3 { background: #fef9c3; color: #854d0e; }
+        .y4 { background: #fee2e2; color: #991b1b; }
+
+        /* Form Styling */
+        .form-card {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: white;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+        }
+        .btn-accent:hover { background: var(--accent-hover); color: white; }
+
+        .search-bar {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <i class="bi bi-mortarboard-fill"></i> S-PORTAL
+        </div>
+        <ul class="list-unstyled">
+            <li><a href="#" class="nav-link active" onclick="showHome()"><i class="bi bi-grid"></i> Dashboard</a></li>
+            <li><a href="#" class="nav-link" onclick="showForm()"><i class="bi bi-person-plus"></i> Enrollment</a></li>
+            <li><a href="#" class="nav-link"><i class="bi bi-book"></i> Courses</a></li>
+            <li><a href="#" class="nav-link"><i class="bi bi-gear"></i> Settings</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div id="content">
+        <!-- Home Section -->
+        <div id="list-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Student Overview</h2>
+                <button class="btn btn-accent" onclick="showForm()">
+                    <i class="bi bi-plus-lg"></i> New Student
+                </button>
+            </div>
+
+            <!-- Mini Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-people"></i></div>
+                        <div>
+                            <small class="text-muted">Total Students</small>
+                            <h4 class="mb-0 fw-bold" id="count-total">--</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #10b981; background: #ecfdf5;"><i class="bi bi-check-circle"></i></div>
+                        <div>
+                            <small class="text-muted">Active Courses</small>
+                            <h4 class="mb-0 fw-bold">12</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-container">
+                <div class="table-header">
+                    <h5 class="mb-0 fw-bold">Recent Registrations</h5>
+                    <input type="text" class="search-bar" placeholder="Search students...">
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Course</th>
+                                <th>Year</th>
+                                <th>Contact</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-table-body">
+                            <!-- Data injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div id="form-section" style="display: none;">
+            <div class="form-card">
+                <div class="mb-4">
+                    <h3 id="form-title" class="fw-bold">Registration</h3>
+                    <p class="text-muted">Complete the fields below to update the records.</p>
+                </div>
+                <form id="student-form" onsubmit="handleFormSubmit(event)">
+                    <input type="hidden" id="db_id">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">ID Number</label>
+                            <input type="text" id="student_id" class="form-control" placeholder="2024-XXXX" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="full_name" class="form-control" placeholder="Jane Doe" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Course</label>
+                            <input type="text" id="course" class="form-control" placeholder="Computer Science" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Year Level</label>
+                            <select id="year_level" class="form-select" required>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="email" class="form-control" placeholder="jane@example.edu" required>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-top d-flex gap-2">
+                        <button type="submit" class="btn btn-accent w-100">Confirm Record</button>
+                        <button type="button" class="btn btn-outline-secondary w-100" onclick="showHome()">Return</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = '/api/students';
+
+    function showHome() {
+        document.getElementById('list-section').style.display = 'block';
+        document.getElementById('form-section').style.display = 'none';
+        fetchStudents();
+    }
+
+    function showForm(student = null) {
+        document.getElementById('list-section').style.display = 'none';
+        document.getElementById('form-section').style.display = 'block';
+        const form = document.getElementById('student-form');
+        if (student) {
+            document.getElementById('form-title').innerText = 'Edit Profile';
+            document.getElementById('db_id').value = student.id;
+            document.getElementById('student_id').value = student.student_id;
+            document.getElementById('full_name').value = student.full_name;
+            document.getElementById('course').value = student.course;
+            document.getElementById('year_level').value = student.year_level;
+            document.getElementById('email').value = student.email;
+        } else {
+            document.getElementById('form-title').innerText = 'New Registration';
+            form.reset();
+            document.getElementById('db_id').value = '';
+        }
+    }
+
+    async function fetchStudents() {
+        try {
+            const response = await fetch(API_URL);
+            const students = await response.json();
+            const tbody = document.getElementById('student-table-body');
+            document.getElementById('count-total').innerText = students.length;
+            tbody.innerHTML = '';
+
+            students.forEach(student => {
+                const yKey = student.year_level.charAt(0);
+                const pillClass = y${yKey};
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">#${student.student_id}</td>
+                        <td class="fw-semibold">${student.full_name}</td>
+                        <td>${student.course}</td>
+                        <td><span class="pill ${pillClass}">${student.year_level}</span></td>
+                        <td><small class="text-muted">${student.email}</small></td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick='editStudent(${JSON.stringify(student)})'>Edit Info</a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="deleteStudent(${student.id})">Remove</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (err) { console.error("API error:", err); }
+    }
+
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        const id = document.getElementById('db_id').value;
+        const studentData = {
+            student_id: document.getElementById('student_id').value,
+            full_name: document.getElementById('full_name').value,
+            course: document.getElementById('course').value,
+            year_level: document.getElementById('year_level').value,
+            email: document.getElementById('email').value
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? ${API_URL}/${id} : API_URL;
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(studentData)
+            });
+            if(response.ok) { showHome(); }
+        } catch (err) { alert("Action failed."); }
+    }
+
+    function editStudent(student) { showForm(student); }
+
+    async function deleteStudent(id) {
+        if (confirm("Permanently delete this student record?")) {
+            await fetch(${API_URL}/${id}, { method: 'DELETE' });
+            fetchStudents();
+        }
+    }
+
+    // Initial load
+    fetchStudents();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+Compose
+Write to Rob Peter
