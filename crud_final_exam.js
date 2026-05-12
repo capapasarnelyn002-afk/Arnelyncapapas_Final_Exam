@@ -44,7 +44,6 @@ initDB();
 app.post('/api/students', async (req, res) => {
     const { student_id, full_name, course, year_level, email } = req.body;
     try {
-        // Insert student record into database
         await pool.query(
             'INSERT INTO students (student_id, full_name, course, year_level, email) VALUES (?, ?, ?, ?, ?)',
             [student_id, full_name, course, year_level, email]
@@ -70,7 +69,6 @@ app.put('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     const { student_id, full_name, course, year_level, email } = req.body;
     try {
-        // Update student record in database
         await pool.query(
             'UPDATE students SET student_id=?, full_name=?, course=?, year_level=?, email=? WHERE id=?',
             [student_id, full_name, course, year_level, email, id]
@@ -85,7 +83,6 @@ app.put('/api/students/:id', async (req, res) => {
 app.delete('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        // Delete student record from database
         await pool.query('DELETE FROM students WHERE id = ?', [id]);
         res.json({ message: "Student deleted successfully" });
     } catch (err) {
