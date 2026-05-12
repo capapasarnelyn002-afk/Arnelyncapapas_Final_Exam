@@ -65,7 +65,7 @@ app.post('/api/students', async (req, res) => {
 app.get('/api/students', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM students ORDER BY id DESC');
-        res.json(rows);
+        res.json(rows); // Send all students as JSON response
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -115,7 +115,18 @@ app.post('/api/courses', async (req, res) => {
 app.get('/api/courses', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM courses ORDER BY id DESC');
-        res.json(rows);
+        res.json(rows); // Send all courses as JSON response
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE (Delete a course)
+app.delete('/api/courses/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM courses WHERE id = ?', [id]);
+        res.json({ message: "Course deleted successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
