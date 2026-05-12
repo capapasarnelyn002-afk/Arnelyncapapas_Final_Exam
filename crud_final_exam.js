@@ -21,7 +21,7 @@ try {
     console.error("Database Connection Failed:", err);
 }
 
-// Create table if it doesn't exist
+// Create tables if they don't exist
 const initDB = async () => {
     try {
         await pool.query(`
@@ -32,6 +32,13 @@ const initDB = async () => {
                 course VARCHAR(100) NOT NULL,
                 year_level VARCHAR(20) NOT NULL,
                 email VARCHAR(100) NOT NULL
+            );
+        `);
+
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS courses (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                course_name VARCHAR(100) NOT NULL
             );
         `);
     } catch (err) {
@@ -58,7 +65,7 @@ app.post('/api/students', async (req, res) => {
 app.get('/api/students', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM students ORDER BY id DESC');
-        res.json(rows);  // Send all students as JSON response
+        res.json(rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -85,6 +92,30 @@ app.delete('/api/students/:id', async (req, res) => {
     try {
         await pool.query('DELETE FROM students WHERE id = ?', [id]);
         res.json({ message: "Student deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// CREATE (Add a new course)
+app.post('/api/courses', async (req, res) => {
+    const { course_name } = req.body;
+    try {
+        await pool.query(
+            'INSERT INTO courses (course_name) VALUES (?)',
+            [course_name]
+        );
+        res.status(201).json({ message: "Course added successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// READ (Get all courses)
+app.get('/api/courses', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM courses ORDER BY id DESC');
+        res.json(rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
