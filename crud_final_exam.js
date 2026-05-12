@@ -7,21 +7,21 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
+// Middleware to handle CORS and JSON data
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database Connection using MySQL from Aiven
+// Database connection using Aiven MySQL URL (from .env file)
 let pool;
 try {
-    pool = mysql.createPool(process.env.MYSQL_URL);  // Use MYSQL_URL from .env file
+    pool = mysql.createPool(process.env.MYSQL_URL);  // Connect to MySQL using the URL from .env
     console.log("Connected to Aiven MySQL");
 } catch (err) {
     console.error("Database Connection Failed:", err);
 }
 
-// Create the students table if it doesn't exist
+// Create table if it doesn't exist
 const initDB = async () => {
     try {
         await pool.query(`
@@ -44,6 +44,7 @@ initDB();
 app.post('/api/students', async (req, res) => {
     const { student_id, full_name, course, year_level, email } = req.body;
     try {
+        // Insert student record into database
         await pool.query(
             'INSERT INTO students (student_id, full_name, course, year_level, email) VALUES (?, ?, ?, ?, ?)',
             [student_id, full_name, course, year_level, email]
@@ -58,7 +59,7 @@ app.post('/api/students', async (req, res) => {
 app.get('/api/students', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM students ORDER BY id DESC');
-        res.json(rows);
+        res.json(rows);  // Send all students as JSON response
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -69,6 +70,7 @@ app.put('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     const { student_id, full_name, course, year_level, email } = req.body;
     try {
+        // Update student record in database
         await pool.query(
             'UPDATE students SET student_id=?, full_name=?, course=?, year_level=?, email=? WHERE id=?',
             [student_id, full_name, course, year_level, email, id]
@@ -83,6 +85,7 @@ app.put('/api/students/:id', async (req, res) => {
 app.delete('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     try {
+        // Delete student record from database
         await pool.query('DELETE FROM students WHERE id = ?', [id]);
         res.json({ message: "Student deleted successfully" });
     } catch (err) {
@@ -90,7 +93,7 @@ app.delete('/api/students/:id', async (req, res) => {
     }
 });
 
-// Start the server
+// Start the server and listen for incoming requests
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
