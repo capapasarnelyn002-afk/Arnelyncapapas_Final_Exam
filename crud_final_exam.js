@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2/promise');
@@ -8,20 +7,21 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database Connection using your MYSQL_URL from Render
+// Database Connection using MySQL from Aiven
 let pool;
 try {
-    pool = mysql.createPool(process.env.MYSQL_URL);
+    pool = mysql.createPool(process.env.MYSQL_URL);  // Use MYSQL_URL from .env file
     console.log("Connected to Aiven MySQL");
 } catch (err) {
     console.error("Database Connection Failed:", err);
 }
 
-// Create table if it doesn't exist
+// Create the students table if it doesn't exist
 const initDB = async () => {
     try {
         await pool.query(`
@@ -40,7 +40,7 @@ const initDB = async () => {
 };
 initDB();
 
-// CREATE
+// CREATE (Add a new student)
 app.post('/api/students', async (req, res) => {
     const { student_id, full_name, course, year_level, email } = req.body;
     try {
@@ -48,13 +48,13 @@ app.post('/api/students', async (req, res) => {
             'INSERT INTO students (student_id, full_name, course, year_level, email) VALUES (?, ?, ?, ?, ?)',
             [student_id, full_name, course, year_level, email]
         );
-        res.status(201).json({ message: "Success" });
+        res.status(201).json({ message: "Student added successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// READ
+// READ (Get all students)
 app.get('/api/students', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM students ORDER BY id DESC');
@@ -64,7 +64,7 @@ app.get('/api/students', async (req, res) => {
     }
 });
 
-// UPDATE
+// UPDATE (Update student information)
 app.put('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     const { student_id, full_name, course, year_level, email } = req.body;
@@ -73,21 +73,24 @@ app.put('/api/students/:id', async (req, res) => {
             'UPDATE students SET student_id=?, full_name=?, course=?, year_level=?, email=? WHERE id=?',
             [student_id, full_name, course, year_level, email, id]
         );
-        res.json({ message: "Updated" });
+        res.json({ message: "Student updated successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// DELETE
+// DELETE (Delete a student)
 app.delete('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     try {
         await pool.query('DELETE FROM students WHERE id = ?', [id]);
-        res.json({ message: "Deleted" });
+        res.json({ message: "Student deleted successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
