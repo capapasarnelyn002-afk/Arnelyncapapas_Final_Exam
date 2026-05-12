@@ -71,7 +71,7 @@
                 <a class="nav-link" href="#" onclick="showForm()">Add Student</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Courses</a>
+                <a class="nav-link" href="#" onclick="showCourses()">Courses</a>
             </li>
         </ul>
     </nav>
@@ -130,16 +130,35 @@
                 </form>
             </div>
         </div>
+
+        <!-- Courses List -->
+        <div id="courses-section" style="display: none;">
+            <h2>Courses</h2>
+            <button class="btn btn-primary" onclick="showAddCourseForm()">+ New Course</button>
+            <table class="table table-bordered table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="courses-table-body">
+                    <!-- Course data will be populated here -->
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
     const API_URL = '/api/students';
+    const COURSE_API_URL = '/api/courses';
 
     // Show Student List
     function showHome() {
         document.getElementById('list-section').style.display = 'block';
         document.getElementById('form-section').style.display = 'none';
+        document.getElementById('courses-section').style.display = 'none';
         fetchStudents();
     }
 
@@ -147,6 +166,7 @@
     function showForm(student = null) {
         document.getElementById('list-section').style.display = 'none';
         document.getElementById('form-section').style.display = 'block';
+        document.getElementById('courses-section').style.display = 'none';
 
         if (student) {
             document.getElementById('form-title').innerText = 'Edit Student';
@@ -219,6 +239,58 @@
         if (confirm("Are you sure you want to delete this student?")) {
             await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
             fetchStudents();
+        }
+    }
+
+    // Show Courses
+    function showCourses() {
+        document.getElementById('courses-section').style.display = 'block';
+        fetchCourses();
+    }
+
+    // Fetch all courses from the backend and render them in the table
+    async function fetchCourses() {
+        const response = await fetch(COURSE_API_URL);
+        const courses = await response.json();
+        const tbody = document.getElementById('courses-table-body');
+        tbody.innerHTML = '';
+
+        courses.forEach(course => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${course.course_name}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCourse(${course.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // Add a new course
+    async function showAddCourseForm() {
+        const courseName = prompt("Enter course name:");
+
+        if (courseName) {
+            const response = await fetch(COURSE_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ course_name: courseName })
+            });
+
+            if (response.ok) {
+                fetchCourses();
+            } else {
+                alert('Failed to add course.');
+            }
+        }
+    }
+
+    // Delete a course
+    async function deleteCourse(id) {
+        if (confirm("Are you sure you want to delete this course?")) {
+            await fetch(`${COURSE_API_URL}/${id}`, { method: 'DELETE' });
+            fetchCourses();
         }
     }
 
